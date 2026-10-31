@@ -1,0 +1,1 @@
+declare module 'laravel-react-i18n/vite';
