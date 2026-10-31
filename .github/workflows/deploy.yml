@@ -12,15 +12,31 @@ jobs:
 
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.4'
+          extensions: mbstring, xml, zip, gd, bcmath, intl
 
-      - name: Install dependencies
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install PHP dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Prepare build environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Build frontend
+        run: |
+          npm ci
+          npm run build
 
       - name: Arrange files for htdocs
         run: |
           mkdir -p deploy/core-laravel-app
-          rsync -a --exclude='public' --exclude='.git' --exclude='.github' --exclude='deploy' --exclude='.env' --exclude='storage/logs' ./ deploy/core-laravel-app/
+          rsync -a --exclude='public' --exclude='.git' --exclude='.github' --exclude='deploy' --exclude='deploy-index.php' --exclude='.env' --exclude='node_modules' ./ deploy/core-laravel-app/
           cp -r public/. deploy/
           cp deploy-index.php deploy/index.php
 
@@ -32,5 +48,3 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./deploy/
           server-dir: /htdocs/
-          exclude: |
-            **/.env
