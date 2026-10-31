@@ -1,0 +1,36 @@
+name: Deploy to InfinityFree
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Arrange files for htdocs
+        run: |
+          mkdir -p deploy/core-laravel-app
+          rsync -a --exclude='public' --exclude='.git' --exclude='.github' --exclude='deploy' --exclude='.env' --exclude='storage/logs' ./ deploy/core-laravel-app/
+          cp -r public/. deploy/
+          cp deploy-index.php deploy/index.php
+
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./deploy/
+          server-dir: /htdocs/
+          exclude: |
+            **/.env
