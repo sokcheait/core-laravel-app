@@ -14,6 +14,8 @@ require $base.'/vendor/autoload.php';
 
 $app = require_once $base.'/bootstrap/app.php';
 
+$app->usePublicPath(__DIR__);
+
 if (method_exists($app, 'handleRequest')) {
     $app->handleRequest(Request::capture());
 } else {
