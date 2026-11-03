@@ -93,10 +93,14 @@ class UserController extends Controller
             'is_active'     => ['boolean'],
             'roles'         => ['nullable', 'array'],
             'roles.*'       => ['integer', Rule::exists('roles', 'id')],
+            'avatar'        => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
         ]);
  
         $user = User::create(Arr::except($data, ['roles']));
         $user->syncRoles(array_map('intval', $data['roles'] ?? []));
+        if ($request->hasFile('avatar')) {
+            $user->addMediaFromRequest('avatar')->toMediaCollection('avatar');
+        }
  
         return redirect('/users')->with('success', __('User created.'));
     }
@@ -117,6 +121,7 @@ class UserController extends Controller
                 'gender'        => $user->gender,
                 'date_of_birth' => $user->date_of_birth?->format('Y-m-d'),
                 'is_active'     => (bool) $user->is_active,
+                'avatar_url'    => $user->getFirstMediaUrl('avatar', 'thumb') ?: null,
                 'roles'         => $user->roles->pluck('id')->map(fn ($id) => (string) $id)->values(),
             ],
             'roles' => Role::query()
@@ -139,10 +144,17 @@ class UserController extends Controller
             'is_active'     => ['boolean'],
             'roles'         => ['nullable', 'array'],
             'roles.*'       => ['integer', Rule::exists('roles', 'id')],
+            'avatar'        => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
         ]);
 
-        $user->update(Arr::except($data, ['roles']));
+        $user->update(Arr::except($data, ['roles', 'avatar', 'remove_avatar']));
         $user->syncRoles(array_map('intval', $data['roles'] ?? []));
+
+        if ($request->hasFile('avatar')) {
+            $user->addMediaFromRequest('avatar')->toMediaCollection('avatar'); // replaces the old one
+        } elseif ($request->boolean('remove_avatar')) {
+            $user->clearMediaCollection('avatar');
+        }
 
         return redirect('/users')->with('success', __('User updated.'));
     }

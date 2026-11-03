@@ -9,6 +9,7 @@ import SelectInput from '@/Components/Form/SelectInput';
 import TextInput from '@/Components/Form/TextInput';
 import ToggleInput from '@/Components/Form/ToggleInput';
 import PhoneInput from '@/Components/Form/PhoneInput';
+import ImageUpload from '@/Components/ImageUpload';
 import MultiSelectInput, { type MultiSelectOption } from '@/Components/Form/MultiSelectInput';
 import useT from '@/hooks/useT';
 import { useToast } from '@/Components/Toast/ToastProvider';
@@ -34,6 +35,7 @@ export default function UsersCreate({ roles }: Props) {
         password: '',
         password_confirmation: '',
         is_active: true,
+        avatar: null as File | null,
     });
 
     transform((formData) => ({
@@ -69,6 +71,12 @@ export default function UsersCreate({ roles }: Props) {
                 className="max-w-full rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/50"
             >
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <ImageUpload
+                        label={t('Profile photo')}
+                        value={data.avatar}
+                        onChange={(f) => setData('avatar', f)}
+                        error={errors.avatar}
+                    />
                     <TextInput
                         label={t('Name (English)')}
                         value={data.name_en}

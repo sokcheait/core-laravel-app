@@ -9,6 +9,7 @@ import {
     Moon,
     Sun,
     X,
+    UserCog,
 } from 'lucide-react';
 import { navigation } from '@/config/navigation';
 import { themes, applyTheme, getSavedTheme, type ThemeName } from '@/config/themes';
@@ -280,6 +281,13 @@ export default function AppLayout({
                                         <p className="truncate text-sm font-medium">{user?.name}</p>
                                         <p className="truncate text-xs text-gray-500">{user?.email}</p>
                                     </div>
+                                    <Link
+                                        href="/profile"
+                                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-white/5"
+                                    >
+                                        <UserCog className="size-4 text-gray-400" />
+                                        {t('Profile')}
+                                    </Link>
 
                                     <button
                                         role="menuitem"

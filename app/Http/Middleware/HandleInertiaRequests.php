@@ -59,7 +59,10 @@ class HandleInertiaRequests extends Middleware
             
             'auth' => [
                 'user' => $request->user()
-                    ? $request->user()->only('id', 'name', 'email')
+                    ? [
+                        ...$request->user()->only('id', 'name', 'email'),
+                        'avatar_url' => $request->user()->getFirstMediaUrl('avatar', 'thumb') ?: null,
+                    ]
                     : null,
             ],
             'roles' => $user ? $user->getRoleNames() : [],

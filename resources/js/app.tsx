@@ -2,25 +2,20 @@ import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
 import 'flag-icons/css/flag-icons.min.css';
 import type { ComponentType } from 'react';
-import { ToastProvider } from '@/Components/Toast/ToastProvider';
-import { ConfirmProvider } from '@/Components/Confirm/ConfirmProvider';
-import FlashToasts from '@/Components/Toast/FlashToasts';
-import { applyTheme, getSavedTheme } from '@/config/themes';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
-applyTheme(getSavedTheme());
-
-// Lazy: each page becomes its own chunk (no eager: true)
-const pages = import.meta.glob<{ default: ComponentType<any> }>('./Pages/**/*.tsx');
+const pages = import.meta.glob<{ default: ComponentType<any> }>(
+    './Pages/**/*.tsx'
+);
 
 void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
+
     progress: {
         color: '#4B5563',
     },
 
-    // Folder casing must match your real folder: Pages or pages
     resolve: async (name) => {
         const importPage = pages[`./Pages/${name}.tsx`];
 
@@ -31,12 +26,28 @@ void createInertiaApp({
         return (await importPage()).default;
     },
 
-    setup({ el, App, props }) {
-        if (!el) return;
+    setup: async ({ el, App, props }) => {
+        if (typeof window === 'undefined' || !el) return;
 
+        const [
+            { ToastProvider },
+            { ConfirmProvider },
+            { default: FlashToasts },
+            { applyTheme, getSavedTheme },
+        ] = await Promise.all([
+            import('@/Components/Toast/ToastProvider'),
+            import('@/Components/Confirm/ConfirmProvider'),
+            import('@/Components/Toast/FlashToasts'),
+            import('@/config/themes'),
+        ]);
+
+        applyTheme(getSavedTheme());
+
+        // Providers live INSIDE <App> so hooks that call usePage() (e.g. useT)
+        // work in ToastItem and the confirm dialog.
         createRoot(el).render(
             <App {...props}>
-                {({ Component, props: pageProps, key }) => (
+                {({ Component, props: pageProps, key }: any) => (
                     <ToastProvider>
                         <ConfirmProvider>
                             <FlashToasts />
@@ -44,7 +55,7 @@ void createInertiaApp({
                         </ConfirmProvider>
                     </ToastProvider>
                 )}
-            </App>,
+            </App>
         );
     },
 });

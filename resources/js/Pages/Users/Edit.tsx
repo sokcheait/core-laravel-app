@@ -8,6 +8,7 @@ import PhoneInput from '@/Components/Form/PhoneInput';
 import SelectInput from '@/Components/Form/SelectInput';
 import TextInput from '@/Components/Form/TextInput';
 import ToggleInput from '@/Components/Form/ToggleInput';
+import ImageUpload from '@/Components/ImageUpload';
 import useT from '@/hooks/useT';
 import { useToast } from '@/Components/Toast/ToastProvider';
 
@@ -23,6 +24,7 @@ interface User {
     is_active: boolean;
     /** Ids of the roles the user currently has, e.g. ["1", "3"] */
     roles: string[];
+    avatar_url: string | null;
 }
 
 interface Props {
@@ -46,6 +48,7 @@ export default function UsersEdit({ user, roles }: Props) {
         password: '',
         password_confirmation: '',
         is_active: user.is_active,
+        avatar: null as File | null,
     });
 
     // name = name_en + name_kh; password is only sent when the user typed one
@@ -88,6 +91,14 @@ export default function UsersEdit({ user, roles }: Props) {
                 className="max-w-full rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/50"
             >
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <ImageUpload
+                        cols={2}
+                        label={t('Profile photo')}
+                        value={data.avatar}
+                        onChange={(f) => setData('avatar', f)}
+                        currentUrl={user?.avatar_url}
+                        error={errors.avatar}
+                    />
                     <TextInput
                         label={t('Name (English)')}
                         value={data.name_en}
