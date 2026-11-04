@@ -109,6 +109,10 @@ class UserController extends Controller
     {
         $view = "Users/Edit";
         $user->load('roles:id,name');
+        $media = $user->getFirstMedia('avatar');
+        $avatarUrl = $media
+            ? $media->getTemporaryUrl(now()->addMinutes(30), 'thumb')
+            : null;
 
         return Inertia::render($view, [
             'user' => [
@@ -121,7 +125,7 @@ class UserController extends Controller
                 'gender'        => $user->gender,
                 'date_of_birth' => $user->date_of_birth?->format('Y-m-d'),
                 'is_active'     => (bool) $user->is_active,
-                'avatar_url'    => $user->getFirstMediaUrl('avatar', 'thumb') ?: null,
+                'avatar_url'    => $avatarUrl,
                 'roles'         => $user->roles->pluck('id')->map(fn ($id) => (string) $id)->values(),
             ],
             'roles' => Role::query()
