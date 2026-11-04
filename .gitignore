@@ -8,6 +8,10 @@
 /resources/js/actions
 /resources/js/routes
 /resources/js/wayfinder
+/storage/inertia-devtools
+composer.lock
+compose.yaml
+package-lock.json
 /storage/*.key
 /storage/pail
 /vendor
