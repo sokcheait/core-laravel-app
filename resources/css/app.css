@@ -50,6 +50,34 @@
     from { transform: scale(0) rotate(-90deg); opacity: 0; }
     to   { transform: scale(1) rotate(0); opacity: 1; }
 }
+
+@keyframes banner-float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-14px, 10px) scale(1.06); }
+}
+ 
+@keyframes banner-shimmer {
+    from { transform: translateX(-120%) skewX(-20deg); }
+    to   { transform: translateX(320%) skewX(-20deg); }
+}
+ 
+@keyframes banner-wave {
+    0%, 60%, 100% { transform: rotate(0); }
+    10% { transform: rotate(14deg); }
+    20% { transform: rotate(-8deg); }
+    30% { transform: rotate(14deg); }
+    40% { transform: rotate(-4deg); }
+    50% { transform: rotate(10deg); }
+}
+ 
+.banner-float       { animation: banner-float 9s ease-in-out infinite; }
+.banner-float-slow  { animation-duration: 13s; animation-direction: reverse; }
+.banner-shimmer     { animation: banner-shimmer 1.6s 0.5s ease-out both; }
+.banner-wave        { display: inline-block; transform-origin: 70% 70%; animation: banner-wave 2.2s 0.7s ease-in-out 2 both; }
+ 
+@media (prefers-reduced-motion: reduce) {
+    .banner-float, .banner-float-slow, .banner-shimmer, .banner-wave { animation: none; }
+}
  
 .theme-rise  { animation: theme-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
 .theme-pop   { animation: theme-pop 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
