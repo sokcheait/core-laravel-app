@@ -29,14 +29,17 @@ class DashboardController extends Controller
                 'perms' => $role->permissions_count,
             ]);
 
-        $recentUsers = User::latest()
-            ->take(5)
-            ->get(['id', 'name', 'email', 'created_at'])
+        $users = User::with('roles:id,name')
+            ->latest()
+            ->take(10)
+            ->get()
             ->map(fn (User $user) => [
                 'id'    => $user->id,
                 'name'  => $user->name,
                 'email' => $user->email,
+                'role'  => $user->roles->pluck('name')->first(),
                 'time'  => $user->created_at->diffForHumans(),
+                'avatar_url' => $user->getFirstMedia('avatar')?->getTemporaryUrl(now()->addMinutes(30), 'thumb')??null
             ]);
 
         return Inertia::render('Dashboard', [
@@ -44,13 +47,12 @@ class DashboardController extends Controller
                 ['label' => 'Total users',  'value' => $userCount],
                 ['label' => 'Roles',        'value' => $roles->count()],
                 ['label' => 'Permissions',  'value' => $permissionCount],
-                // ['label' => 'Member since', 'value' => $me->created_at->format('M Y')],
                 ['label' => 'Account ID',   'value' => $me->id, 'animate' => false],
             ],
             'roles'           => $roles,
             'userCount'       => $userCount,
             'permissionCount' => $permissionCount,
-            'recentUsers'     => $recentUsers,
+            'users'           => $users,
         ]);
     }
 }
